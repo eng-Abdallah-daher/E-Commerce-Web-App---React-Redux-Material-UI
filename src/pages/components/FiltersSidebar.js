@@ -1,0 +1,235 @@
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  Box,
+  Typography,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+  Slider,
+  Paper,
+  Button,
+  Divider,
+  useTheme,
+  useMediaQuery,
+  styled
+} from '@mui/material';
+import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
+import { setFilter, clearFilters, selectFilters } from '../../redux/slices/productsSlice';
+
+const FilterContainer = styled(Paper)(({ theme, isMobile }) => ({
+  padding: theme.spacing(2),
+  position: isMobile ? 'static' : 'sticky',
+  top: theme.spacing(2),
+  maxHeight: isMobile ? 'auto' : 'calc(100vh - 100px)',
+  overflowY: isMobile ? 'visible' : 'auto',
+  marginBottom: theme.spacing(2)
+}));
+
+const FilterTitle = styled(Typography)(({ theme }) => ({
+  fontWeight: 'bold',
+  marginBottom: theme.spacing(2)
+}));
+
+const PriceSlider = styled(Slider)(({ theme }) => ({
+  marginTop: theme.spacing(4),
+  width: '90%',
+  marginLeft: 'auto',
+  marginRight: 'auto'
+}));
+
+const typeOptions = ['Shirt', 'Pants', 'Dress', 'Jacket', 'Shoes'];
+const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+const colorOptions = ['Black', 'White', 'Red', 'Blue', 'Green', 'Yellow'];
+
+export default function FiltersSidebar() {
+  const dispatch = useDispatch();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const filters = useSelector(selectFilters);
+  
+  const [expanded, setExpanded] = useState(isMobile ? false : 'type');
+  
+  const handleChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
+  
+  const handleTypeChange = (event) => {
+    const { value, checked } = event.target;
+    const newTypes = checked
+      ? [...filters.type, value]
+      : filters.type.filter(type => type !== value);
+    
+    dispatch(setFilter({ filterType: 'type', value: newTypes }));
+  };
+  
+  const handleSizeChange = (event) => {
+    const { value, checked } = event.target;
+    const newSizes = checked
+      ? [...filters.size, value]
+      : filters.size.filter(size => size !== value);
+    
+    dispatch(setFilter({ filterType: 'size', value: newSizes }));
+  };
+  
+  const handleColorChange = (event) => {
+    const { value, checked } = event.target;
+    const newColors = checked
+      ? [...filters.color, value]
+      : filters.color.filter(color => color !== value);
+    
+    dispatch(setFilter({ filterType: 'color', value: newColors }));
+  };
+  
+  const handlePriceChange = (event, newValue) => {
+    dispatch(setFilter({ filterType: 'priceRange', value: newValue }));
+  };
+  
+  const handleClearFilters = () => {
+    dispatch(clearFilters());
+  };
+  
+  const formatPrice = (value) => `$${value}`;
+  
+  return (
+    <FilterContainer elevation={2} isMobile={isMobile}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <FilterTitle variant="h6">Filters</FilterTitle>
+        <Button 
+          variant="text" 
+          color="primary" 
+          size="small"
+          onClick={handleClearFilters}
+        >
+          Clear All
+        </Button>
+      </Box>
+      
+      <Divider sx={{ mb: 2 }} />
+      
+      <Accordion 
+        expanded={expanded === 'type'} 
+        onChange={handleChange('type')}
+        disableGutters
+        elevation={0}
+      >
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>Type</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <FormGroup>
+            {typeOptions.map(type => (
+              <FormControlLabel
+                key={type}
+                control={
+                  <Checkbox 
+                    checked={filters.type.includes(type)} 
+                    onChange={handleTypeChange}
+                    value={type}
+                    size="small"
+                  />
+                }
+                label={type}
+              />
+            ))}
+          </FormGroup>
+        </AccordionDetails>
+      </Accordion>
+      
+      <Divider />
+      
+      <Accordion 
+        expanded={expanded === 'size'} 
+        onChange={handleChange('size')}
+        disableGutters
+        elevation={0}
+      >
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>Size</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <FormGroup>
+            {sizeOptions.map(size => (
+              <FormControlLabel
+                key={size}
+                control={
+                  <Checkbox 
+                    checked={filters.size.includes(size)} 
+                    onChange={handleSizeChange}
+                    value={size}
+                    size="small"
+                  />
+                }
+                label={size}
+              />
+            ))}
+          </FormGroup>
+        </AccordionDetails>
+      </Accordion>
+      
+      <Divider />
+      
+      <Accordion 
+        expanded={expanded === 'color'} 
+        onChange={handleChange('color')}
+        disableGutters
+        elevation={0}
+      >
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>Color</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <FormGroup>
+            {colorOptions.map(color => (
+              <FormControlLabel
+                key={color}
+                control={
+                  <Checkbox 
+                    checked={filters.color.includes(color)} 
+                    onChange={handleColorChange}
+                    value={color}
+                    size="small"
+                  />
+                }
+                label={color}
+              />
+            ))}
+          </FormGroup>
+        </AccordionDetails>
+      </Accordion>
+      
+      <Divider />
+      
+      <Accordion 
+        expanded={expanded === 'price'} 
+        onChange={handleChange('price')}
+        disableGutters
+        elevation={0}
+      >
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>Price</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Box sx={{ px: 2 }}>
+            <PriceSlider
+              value={filters.priceRange}
+              onChange={handlePriceChange}
+              valueLabelDisplay="auto"
+              valueLabelFormat={formatPrice}
+              min={0}
+              max={1000}
+              step={10}
+            />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+              <Typography variant="body2">{formatPrice(filters.priceRange[0])}</Typography>
+              <Typography variant="body2">{formatPrice(filters.priceRange[1])}</Typography>
+            </Box>
+          </Box>
+        </AccordionDetails>
+      </Accordion>
+    </FilterContainer>
+  );
+}
