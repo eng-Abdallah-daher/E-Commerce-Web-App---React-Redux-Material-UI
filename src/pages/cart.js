@@ -26,7 +26,6 @@ import {
   selectConfirmDialogOpen
 } from '../redux/slices/cartSlice';
 import { hideOverlay, showOverlay } from '../redux/slices/uiSlice';
-
 const CartPopover = styled(Popover)(({ theme }) => ({
   '& .MuiPopover-paper': {
     width: 350,
@@ -37,7 +36,6 @@ const CartPopover = styled(Popover)(({ theme }) => ({
     marginTop: theme.spacing(1),
   },
 }));
-
 const CartArrow = styled('div')(({ theme }) => ({
   position: 'absolute',
   top: -10,
@@ -48,23 +46,19 @@ const CartArrow = styled('div')(({ theme }) => ({
   borderRight: '10px solid transparent',
   borderBottom: `10px solid ${theme.palette.background.paper}`,
 }));
-
 const CartItemsWrapper = styled(Box)(({ theme }) => ({
   maxHeight: 300,
   overflowY: 'auto',
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),
 }));
-
 const Cart = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector(selectCartItems);
   const totalAmount = useSelector(selectCartTotal);
   const isCartOpen = useSelector(selectIsCartOpen);
   const confirmDialogOpen = useSelector(selectConfirmDialogOpen);
-
   const [anchorEl, setAnchorEl] = React.useState(null);
-
   useEffect(() => {
     if (isCartOpen) {
       dispatch(showOverlay({
@@ -81,77 +75,40 @@ const Cart = () => {
       document.body.style.overflow = '';
     };
   }, [isCartOpen, dispatch]);
-
   const handleCartIconMouseEnter = (event) => {
     setAnchorEl(event.currentTarget);
     dispatch(openCart());
   };
-
-
-
   const handleCartIconMouseLeave = () => {
-
     setTimeout(() => {
       setAnchorEl(null);
       dispatch(closeCart());
     }, 100);
   };
-
-  const handleCartIconClick = () => {
-    dispatch(showOverlay({
-      content: {
-        title: 'Your Cart',
-        body: (
-          <Box>
-            <Typography variant="body1">
-              You have {cartItems.length} items in your cart.
-            </Typography>
-            <Button
-              component={Link}
-              to="/cart"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ mt: 2 }}
-            >
-              Go to Cart
-            </Button>
-          </Box>
-        ),
-        linkTo: '/cart',
-        actionText: 'View Cart'
-      }
-    }));
-  };
-
+  
   const handleOpenConfirmDialog = (index) => {
     dispatch(openConfirmDialog(index));
   };
-
   const handleCloseConfirmDialog = () => {
     dispatch(closeConfirmDialog());
   };
-
   const handleConfirmRemove = () => {
     dispatch(confirmRemove());
   };
-
   const handleCheckout = () => {
     dispatch(clearCart());
     dispatch(closeCart());
   };
-
   return (
     <>
       <IconButton
         color="inherit"
         aria-label="cart"
         onMouseEnter={handleCartIconMouseEnter}
-        onClick={handleCartIconClick}
+        onClick={handleCartIconMouseEnter}
       >
         <CartIcon />
       </IconButton>
-
       <CartPopover
         open={isCartOpen}
         anchorEl={anchorEl}
@@ -174,7 +131,9 @@ const Cart = () => {
       >
         <CartArrow />
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">YOUR CART ({cartItems.length})</Typography>
+          <Typography 
+          tabindex="0"
+          variant="h6">YOUR CART ({cartItems.length})</Typography>
           <Button
             component={Link}
             to="/cart"
@@ -184,9 +143,7 @@ const Cart = () => {
             VIEW CART
           </Button>
         </Box>
-
         <Divider sx={{ my: 1 }} />
-
         <CartItemsWrapper>
           {cartItems.length > 0 ? (
             cartItems.map((item, index) => (
@@ -203,14 +160,12 @@ const Cart = () => {
             </Typography>
           )}
         </CartItemsWrapper>
-
         <Divider sx={{ my: 1 }} />
-
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}
+        tabindex="0">
           <Typography variant="subtitle1" fontWeight="bold">Estimated Total</Typography>
           <Typography variant="subtitle1" fontWeight="bold">${totalAmount.toFixed(2)}</Typography>
         </Box>
-
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Button
             variant="contained"
@@ -230,7 +185,6 @@ const Cart = () => {
           </Button>
         </Box>
       </CartPopover>
-
       <ConfirmDialog
         show={confirmDialogOpen}
         title="Remove Item?"
@@ -241,5 +195,4 @@ const Cart = () => {
     </>
   );
 };
-
 export default Cart;

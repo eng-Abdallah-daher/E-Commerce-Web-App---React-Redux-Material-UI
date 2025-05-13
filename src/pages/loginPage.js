@@ -28,16 +28,15 @@ import {
 } from '@mui/icons-material';
 import { authenticate } from './utils/loginFunctions';
 import { loginSuccess } from '../redux/slices/userSlice';
+import { addToCart } from '../redux/slices/cartSlice';
+import { addToWishlistAction } from '../redux/slices/wishlistSlice';
 import Navbar from './components/Navbar';
-import { setCookie } from './utils/Functions';
-
 const PageContainer = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
   display: 'flex',
   flexDirection: 'column',
   background: `linear-gradient(135deg, ${alpha(theme.palette.primary.dark, 0.05)} 0%, ${alpha(theme.palette.primary.main, 0.1)} 100%)`,
 }));
-
 const LoginSection = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexGrow: 1,
@@ -46,20 +45,17 @@ const LoginSection = styled(Box)(({ theme }) => ({
     padding: theme.spacing(8, 4),
   },
 }));
-
 const LoginContainer = styled(Container)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
 }));
-
 const LoginGrid = styled(Grid)(({ theme }) => ({
   height: '100%',
   borderRadius: theme.shape.borderRadius * 2,
   overflow: 'hidden',
   boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
 }));
-
 const LoginFormContainer = styled(Grid)(({ theme }) => ({
   padding: theme.spacing(6, 4),
   display: 'flex',
@@ -70,7 +66,6 @@ const LoginFormContainer = styled(Grid)(({ theme }) => ({
     padding: theme.spacing(4, 2),
   },
 }));
-
 const LoginImageContainer = styled(Grid)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -84,7 +79,6 @@ const LoginImageContainer = styled(Grid)(({ theme }) => ({
     display: 'none',
   },
 }));
-
 const LoginImageOverlay = styled(Box)(({ theme }) => ({
   position: 'absolute',
   top: 0,
@@ -96,7 +90,6 @@ const LoginImageOverlay = styled(Box)(({ theme }) => ({
   backgroundPosition: 'center',
   opacity: 0.2,
 }));
-
 const LoginLogo = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -107,18 +100,15 @@ const LoginLogo = styled(Box)(({ theme }) => ({
     color: theme.palette.primary.main,
   },
 }));
-
 const LoginHeader = styled(Typography)(({ theme }) => ({
   fontWeight: 700,
   marginBottom: theme.spacing(1),
   color: theme.palette.text.primary,
 }));
-
 const LoginSubheader = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(4),
   color: theme.palette.text.secondary,
 }));
-
 const StyledTextField = styled(TextField)(({ theme }) => ({
   marginBottom: theme.spacing(3),
   '& .MuiOutlinedInput-root': {
@@ -140,7 +130,6 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
     },
   },
 }));
-
 const SubmitButton = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(2),
   padding: theme.spacing(1.5, 0),
@@ -159,12 +148,10 @@ const SubmitButton = styled(Button)(({ theme }) => ({
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
   },
 }));
-
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -172,26 +159,24 @@ const Login = () => {
   const [error, setError] = useState('');
   const [showError, setShowError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       const result = await authenticate(email, password);
       if (result.success) {
         const userData = result.user;
-
-        setCookie('userName', userData.name, 7);
-        setCookie('email', userData.email, 7);
-        setCookie('userimage', userData.userimage, 7);
-        setCookie('address', userData.address, 7);
-
-  setCookie('cartItems', userData.cartitems, 7);
-        setCookie('wishlistItems', userData.wishlist, 7);
-
         dispatch(loginSuccess(userData));
-
+        if (userData.cartitems && userData.cartitems.length > 0) {
+          userData.cartitems.forEach(item => {
+            dispatch(addToCart({ item, quantity: item.quantity || 1 }));
+          });
+        }
+        if (userData.wishlist && userData.wishlist.length > 0) {
+          userData.wishlist.forEach(index => {
+            dispatch(addToWishlistAction(index));
+          });
+        }
         navigate('/');
       } else {
         setError('Invalid email or password');
@@ -204,41 +189,32 @@ const Login = () => {
       setIsLoading(false);
     }
   };
-
   const handleCloseError = () => {
     setShowError(false);
   };
-
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
-
   const chooseSuggest = (idx) => {
     navigate(`/products?id=${idx}`);
   };
-
   return (
     <PageContainer>
       <Navbar chooseSuggest={chooseSuggest} />
-
       <LoginSection>
         <LoginContainer maxWidth="lg">
           <LoginGrid container>
-          
             <LoginFormContainer item xs={12} md={6}>
               <LoginLogo>
                 <ShoppingBagIcon />
                 <Typography variant="h5" fontWeight="bold">MY SHOP</Typography>
               </LoginLogo>
-
               <LoginHeader variant="h4">
                 Welcome Back
               </LoginHeader>
-
               <LoginSubheader variant="body1">
                 Please sign in to continue shopping
               </LoginSubheader>
-
               <form onSubmit={handleLogin}>
                 <StyledTextField
                   variant="outlined"
@@ -259,7 +235,6 @@ const Login = () => {
                     ),
                   }}
                 />
-
                 <StyledTextField
                   variant="outlined"
                   required
@@ -290,7 +265,6 @@ const Login = () => {
                     ),
                   }}
                 />
-
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                   <FormControlLabel
                     control={
@@ -303,7 +277,6 @@ const Login = () => {
                     }
                     label={<Typography variant="body2">Remember me</Typography>}
                   />
-
                   <Typography
                     variant="body2"
                     component={Link}
@@ -317,7 +290,6 @@ const Login = () => {
                     Forgot password?
                   </Typography>
                 </Box>
-
                 <SubmitButton
                   type="submit"
                   fullWidth
@@ -327,7 +299,6 @@ const Login = () => {
                 >
                   {isLoading ? 'Signing in...' : 'Sign In'}
                 </SubmitButton>
-
                 <Box sx={{ mt: 3, textAlign: 'center' }}>
                   <Typography variant="body2" color="textSecondary">
                     Don't have an account?{' '}
@@ -346,14 +317,12 @@ const Login = () => {
                     </Typography>
                   </Typography>
                 </Box>
-
                 <Box sx={{ mt: 4 }}>
                   <Divider>
                     <Typography variant="body2" color="textSecondary" sx={{ px: 1 }}>
                       Or continue with
                     </Typography>
                   </Divider>
-
                   <Grid container spacing={2} sx={{ mt: 2 }}>
                     <Grid item xs={6}>
                       <Button
@@ -418,7 +387,6 @@ const Login = () => {
           </LoginGrid>
         </LoginContainer>
       </LoginSection>
-
       <Snackbar
         open={showError}
         autoHideDuration={6000}
@@ -437,5 +405,4 @@ const Login = () => {
     </PageContainer>
   );
 };
-
 export default Login;

@@ -3,7 +3,6 @@ import { Box, Paper, Typography, Button, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
-
 const ModalContainer = styled(Paper)(({ theme }) => ({
   position: 'absolute',
   top: '50%',
@@ -17,7 +16,6 @@ const ModalContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
   zIndex: 2000,
 }));
-
 const OverlayModal = ({ title, content, onClose, linkTo, actionText }) => {
   return (
     <ModalContainer>
@@ -27,11 +25,9 @@ const OverlayModal = ({ title, content, onClose, linkTo, actionText }) => {
           <CloseIcon />
         </IconButton>
       </Box>
-
       <Box sx={{ mb: 3 }}>
         {content}
       </Box>
-
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
         <Button variant="outlined" onClick={onClose}>
           Close
@@ -51,5 +47,4 @@ const OverlayModal = ({ title, content, onClose, linkTo, actionText }) => {
     </ModalContainer>
   );
 };
-
 export default OverlayModal;

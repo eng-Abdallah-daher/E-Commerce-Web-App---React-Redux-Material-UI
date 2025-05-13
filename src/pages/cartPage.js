@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -11,102 +11,57 @@ import {
   IconButton,
   Divider,
   Chip,
-  Card,
   CardMedia,
-  useTheme,
-  useMediaQuery
+  useTheme
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
   Favorite as FavoriteIcon,
   ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
-import { setCookie, getCookie } from './utils/Functions';
-import { addToWishlist, getWishlist } from './utils/WishlistFunctions';
 import { obj } from '../data/products';
-import ConfirmDialog from './components/ConfirmDialog';
 import Navbar from './components/Navbar';
 import {
   clearCart,
-  removeFromCart
+  removeFromCart,
+  selectCartItems
 } from '../redux/slices/cartSlice';
 import { addToWishlistAction } from '../redux/slices/wishlistSlice';
-
+import { useConfirmDialog } from '../hooks/useConfirmDialog';
 const CartPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
-
-
-
-  const [cart, setCart] = useState([]);
-
-
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [itemToSave, setItemToSave] = useState(null);
-
-
-  useEffect(() => {
-    const savedCart = getCookie('cartItems');
-    setCart(savedCart);
-  }, []);
-
-
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-
+  const cartItems = useSelector(selectCartItems);
+  const { openConfirmDialog } = useConfirmDialog();
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const handleSaveForLater = (item) => {
-    setItemToSave(item);
-    setShowConfirm(true);
-  };
-
-
-  const confirmSave = () => {
-    if (itemToSave) {
-      console.log(itemToSave)
-      const index = obj.results.findIndex((product) => product.productID === itemToSave.productID);
-
-        addToWishlist(index);
+    const index = obj.results.findIndex((product) => product.productID === item.productID);
+    openConfirmDialog({
+      title: "Save to Wishlist?",
+      message: "Are you sure you want to save this item to your wishlist?",
+      onConfirm: () => {
         dispatch(addToWishlistAction(index));
-
-
-    }
-    setShowConfirm(false);
-    setItemToSave(null);
+        dispatch(removeFromCart(item));
+      }
+    });
   };
-
-
-  const handleRemoveFromCart = (item, index) => {
-    console.log("Removing item:", item);
-
+  const handleRemoveFromCart = (item) => {
     dispatch(removeFromCart(item));
-    const updatedCart = cart.filter((_, i) => i !== index);
-    setCart(updatedCart);
-    console.log("Updated cart:", updatedCart);
   };
-
-
   const handleCheckout = () => {
-
-    setCookie('cartItems', [], 7);
     dispatch(clearCart());
-    setCart([]);
+    alert("Checkout functionality would be implemented here");
   };
-
-
   const handleGoBack = () => {
     navigate(-1);
   };
-
-
   const chooseSuggest = (idx) => {
     navigate(`/products?id=${idx}`);
   };
-
   return (
     <>
       <Navbar chooseSuggest={chooseSuggest} />
-
       <Container maxWidth="lg" sx={{ padding: theme.spacing(4, 2) }}>
         <Box
           sx={{
@@ -124,25 +79,23 @@ const CartPage = () => {
           <Typography variant="h4" fontWeight={600} sx={{ display: 'flex', alignItems: 'center' }}>
             YOUR CART
             <Chip
-              label={cart.length}
+              label={cartItems.length}
               color="primary"
               size="small"
               sx={{ marginLeft: 1 }}
             />
           </Typography>
-
           <Button
             variant="outlined"
             startIcon={<ArrowBackIcon />}
             onClick={handleGoBack}
+            aria-label="Go back"
           >
             Back
           </Button>
         </Box>
-
         <Divider sx={{ mb: 4 }} />
-
-        {cart.length === 0 ? (
+        {cartItems.length === 0 ? (
           <Paper
             elevation={2}
             sx={{
@@ -162,15 +115,15 @@ const CartPage = () => {
               color="primary"
               onClick={handleGoBack}
               sx={{ mt: 2 }}
+              aria-label="Continue shopping"
             >
               Continue Shopping
             </Button>
           </Paper>
         ) : (
           <>
-            <Box>
-              {cart.map((item, index) => (
-
+            <Box role="list" aria-label="Cart items">
+              {cartItems.map((item, index) => (
                 <Paper
                   elevation={1}
                   key={index}
@@ -183,6 +136,7 @@ const CartPage = () => {
                       flexDirection: 'column'
                     }
                   }}
+                  role="listitem"
                 >
                   <CardMedia
                     component="img"
@@ -200,41 +154,36 @@ const CartPage = () => {
                       }
                     }}
                   />
-
                   <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
                       {item.name}
                     </Typography>
-
                     <Typography variant="body2" color="textSecondary" gutterBottom>
                       Variant: {item.swatch}
                     </Typography>
-
                     <Typography variant="subtitle1" fontWeight={700} color="primary.main">
                       ${item.price}
                     </Typography>
-
                     <Typography variant="body2" gutterBottom>
                       Quantity: {item.quantity}
                     </Typography>
-
                     <Box sx={{ display: 'flex', gap: 1, mt: 'auto', flexWrap: 'wrap' }}>
                       <Button
                         variant="outlined"
                         size="small"
                         startIcon={<FavoriteIcon />}
                         onClick={() => handleSaveForLater(item)}
+                        aria-label={`Save ${item.name} for later`}
                       >
                         Save for Later
                       </Button>
                     </Box>
                   </Box>
-
                   <IconButton
                     edge="end"
                     color="error"
-                    onClick={() => handleRemoveFromCart(item, index)}
-                    aria-label="remove the item from the cart"
+                    onClick={() => handleRemoveFromCart(item)}
+                    aria-label={`Remove ${item.name} from cart`}
                     sx={{ position: 'absolute', top: 8, right: 8 }}
                   >
                     <DeleteIcon />
@@ -242,7 +191,6 @@ const CartPage = () => {
                 </Paper>
               ))}
             </Box>
-
             <Paper
               elevation={2}
               sx={{
@@ -264,9 +212,7 @@ const CartPage = () => {
                   ${total.toFixed(2)}
                 </Typography>
               </Box>
-
               <Divider sx={{ mb: 2 }} />
-
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <Button
@@ -275,17 +221,18 @@ const CartPage = () => {
                     fullWidth
                     size="large"
                     onClick={handleCheckout}
+                    aria-label="Proceed to checkout"
                   >
                     Checkout
                   </Button>
                 </Grid>
-
                 <Grid item xs={12} sm={6}>
                   <Button
                     variant="outlined"
                     fullWidth
                     size="large"
                     onClick={handleGoBack}
+                    aria-label="Continue shopping"
                   >
                     Continue Shopping
                   </Button>
@@ -295,16 +242,7 @@ const CartPage = () => {
           </>
         )}
       </Container>
-
-      <ConfirmDialog
-        show={showConfirm}
-        title="Save to Wishlist?"
-        message="Are you sure you want to save this item to your wishlist?"
-        onCancel={() => { setShowConfirm(false); setItemToSave(null); }}
-        onConfirm={confirmSave}
-      />
     </>
   );
 };
-
 export default CartPage;

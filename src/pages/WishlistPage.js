@@ -30,24 +30,19 @@ import { getWishlist, removeFromWishlist, clearWishlist } from './utils/Wishlist
 import Navbar from './components/Navbar';
 import ConfirmDialog from './components/ConfirmDialog';
 import { addToCart } from '../redux/slices/cartSlice';
-
-
 const WishlistContainer = styled(Container)(({ theme }) => ({
   padding: theme.spacing(4, 2),
   [theme.breakpoints.up('md')]: {
     padding: theme.spacing(5, 3),
   }
 }));
-
 const WishlistHeader = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(4),
 }));
-
 const WishlistTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
   marginBottom: theme.spacing(2)
 }));
-
 const WishlistItemCard = styled(Card)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
@@ -58,7 +53,6 @@ const WishlistItemCard = styled(Card)(({ theme }) => ({
     boxShadow: theme.shadows[4]
   }
 }));
-
 const WishlistItemMedia = styled(CardMedia)(({ theme }) => ({
   height: 200,
   backgroundSize: 'contain',
@@ -66,12 +60,10 @@ const WishlistItemMedia = styled(CardMedia)(({ theme }) => ({
   padding: theme.spacing(2),
   backgroundColor: '#f5f5f5'
 }));
-
 const WishlistItemContent = styled(CardContent)(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(2),
 }));
-
 const WishlistItemName = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
   marginBottom: theme.spacing(1),
@@ -83,37 +75,27 @@ const WishlistItemName = styled(Typography)(({ theme }) => ({
   height: '3em',
   lineHeight: '1.5em'
 }));
-
 const WishlistItemPrice = styled(Typography)(({ theme }) => ({
   fontWeight: 700,
   color: theme.palette.primary.main,
   marginBottom: theme.spacing(2)
 }));
-
 const ActionButton = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(1),
   textTransform: 'none'
 }));
-
 const EmptyWishlist = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
   textAlign: 'center',
   marginTop: theme.spacing(4)
 }));
-
 const WishlistPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
-  
   const [wishlist, setWishlist] = useState([]);
-  
-  
   const [showConfirm, setShowConfirm] = useState(false);
   const [itemToRemove, setItemToRemove] = useState(null);
   const [isClearingAll, setIsClearingAll] = useState(false);
-
-  
   useEffect(() => {
     const savedWishlistIndexes = getWishlist();
     const fullProducts = savedWishlistIndexes.map(index => ({
@@ -122,15 +104,11 @@ const WishlistPage = () => {
     }));
     setWishlist(fullProducts);
   }, []);
-
-  
   const openConfirmDialog = (item, isClearAll = false) => {
     setItemToRemove(item);
     setIsClearingAll(isClearAll);
     setShowConfirm(true);
   };
-
-  
   const confirmRemove = () => {
     if (isClearingAll) {
       clearWishlist();
@@ -141,13 +119,9 @@ const WishlistPage = () => {
     }
     setShowConfirm(false);
   };
-
-  
   const cancelRemove = () => {
     setShowConfirm(false);
   };
-
-  
   const handleAddToCart = (item) => {
     dispatch(addToCart({
       item: {
@@ -159,27 +133,20 @@ const WishlistPage = () => {
       quantity: 1
     }));
   };
-
-  
   const handleGoBack = () => {
     navigate(-1);
   };
-
-  
   const chooseSuggest = (idx) => {
     navigate(`/products?id=${idx}`);
   };
-
   return (
     <>
       <Navbar chooseSuggest={chooseSuggest} />
-      
       <WishlistContainer maxWidth="lg">
         <WishlistHeader>
           <WishlistTitle variant="h4">
             YOUR WISHLIST ({wishlist.length})
           </WishlistTitle>
-          
           <Button 
             variant="outlined" 
             startIcon={<ArrowBackIcon />}
@@ -188,9 +155,7 @@ const WishlistPage = () => {
             Back
           </Button>
         </WishlistHeader>
-        
         <Divider sx={{ mb: 4 }} />
-        
         {wishlist.length === 0 ? (
           <EmptyWishlist elevation={2}>
             <Typography variant="h6" gutterBottom>
@@ -237,7 +202,6 @@ const WishlistPage = () => {
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Box>
-                    
                     <WishlistItemContent>
                       <WishlistItemName 
                         variant="subtitle1"
@@ -246,11 +210,9 @@ const WishlistPage = () => {
                       >
                         {item.productName}
                       </WishlistItemName>
-                      
                       <WishlistItemPrice variant="h6">
                         {item.productPriceFormatted}
                       </WishlistItemPrice>
-                      
                       <ActionButton
                         variant="contained"
                         color="primary"
@@ -265,7 +227,6 @@ const WishlistPage = () => {
                 </Grid>
               ))}
             </Grid>
-            
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
               <Button
                 variant="outlined"
@@ -278,7 +239,6 @@ const WishlistPage = () => {
           </>
         )}
       </WishlistContainer>
-      
       <ConfirmDialog 
         show={showConfirm} 
         onCancel={cancelRemove} 
@@ -291,5 +251,4 @@ const WishlistPage = () => {
     </>
   );
 };
-
 export default WishlistPage;

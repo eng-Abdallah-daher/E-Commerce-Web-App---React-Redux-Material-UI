@@ -3,12 +3,10 @@ export let statusofheart = false
 export function falsing(){
     statusofheart = false
 }
-
 export function statusofhearttrue(){
     statusofheart = true
 }
 export const getWishlist = () => {
-    
     try {
         const saved = getCookie("wishlistItems");
         return saved ? saved : [];
@@ -21,9 +19,7 @@ export var list = getWishlist();
 export function getWishlistItems() {
     list = getWishlist() 
 }
-
 export const addToWishlist = (index) => {
-
     try {
         if(index<0) return;
         const wishlist = getWishlist();
@@ -35,7 +31,6 @@ export const addToWishlist = (index) => {
         console.error("Wishlist error (add):", err);
     }
 };
-
 export const removeFromWishlist = (index) => {
     getWishlistItems();
     try {
@@ -46,7 +41,6 @@ export const removeFromWishlist = (index) => {
         console.error("Wishlist error (remove):", err);
     }
 };
-
 export const clearWishlist = () => {
     try {
         setCookie('wishlistItems', [], 7);

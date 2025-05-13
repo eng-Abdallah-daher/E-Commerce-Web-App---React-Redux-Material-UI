@@ -1,20 +1,1 @@
-import { getCookie } from "../utils/Functions";
-
-export default function AddressInfo() {
-    const addressRaw = getCookie('address');
-
-    const address = addressRaw ? addressRaw : null;
-        return (
-            <div className="address-card">
-                <h2 className="address-title">Address Information</h2>
-                <div className="address-field"><strong>Street:</strong> {address.street}</div>
-                <div className="address-field"><strong>City:</strong> {address.city}</div>
-                <div className="address-field"><strong>Country:</strong> {address.country}</div>
-                <div className="address-field"><strong>ZIP Code:</strong> {address.zip}</div>
-                <div className="address-field"><strong>Phone:</strong> {address.phone}</div>
-            </div>
-        );
-    
-
-    
-}
+import React from 'react';import { useSelector } from 'react-redux';export default function AddressInfo() {    const address = useSelector(state => state.user.currentUser?.address);    if (!address) {        return (            <div                className="address-card"                role="region"                aria-label="Address Information"                tabIndex="0"            >                <h2                    className="address-title"                    tabIndex="0"                >                    Address Information                </h2>                <div                    className="address-field"                    tabIndex="0"                >                    No address information available                </div>            </div>        );    }    return (        <div            className="address-card"            role="region"            aria-label="Address Information"            tabIndex="0"        >            <h2                className="address-title"                tabIndex="0"            >                Address Information            </h2>            <div className="address-field" tabIndex="0"><strong>Street:</strong> {address.street}</div>            <div className="address-field" tabIndex="0"><strong>City:</strong> {address.city}</div>            <div className="address-field" tabIndex="0"><strong>Country:</strong> {address.country}</div>            <div className="address-field" tabIndex="0"><strong>ZIP Code:</strong> {address.zip}</div>            <div className="address-field" tabIndex="0"><strong>Phone:</strong> {address.phone}</div>        </div>    );}

@@ -1,77 +1,1 @@
-import React from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
-  IconButton,
-  Typography
-} from '@mui/material';
-import { Close as CloseIcon } from '@mui/icons-material';
-
-const ConfirmDialog = ({ show, title, message, onCancel, onConfirm }) => {
-  if (!show) return null;
-
-  return (
-    <Dialog
-      open={show}
-      onClose={onCancel}
-      aria-labelledby="confirm-dialog-title"
-      aria-describedby="confirm-dialog-description"
-      PaperProps={{
-        elevation: 3,
-        sx: {
-          borderRadius: 2,
-          minWidth: 300,
-          maxWidth: 'calc(100% - 32px)'
-        }
-      }}
-    >
-      <DialogTitle id="confirm-dialog-title" sx={{ pr: 6 }}>
-        <Typography variant="h6" component="div">
-          {title}
-        </Typography>
-        <IconButton
-          aria-label="close"
-          onClick={onCancel}
-          sx={{
-            position: 'absolute',
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-
-      <DialogContent>
-        <DialogContentText id="confirm-dialog-description">
-          {message}
-        </DialogContentText>
-      </DialogContent>
-
-      <DialogActions sx={{ px: 3, pb: 3 }}>
-        <Button
-          onClick={onCancel}
-          variant="outlined"
-          color="primary"
-        >
-          Cancel
-        </Button>
-        <Button
-          onClick={onConfirm}
-          variant="contained"
-          color="primary"
-          autoFocus
-        >
-          Confirm
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
-
-export default ConfirmDialog;
+import React from 'react';import {  Dialog,  DialogTitle,  DialogContent,  DialogContentText,  DialogActions,  Button,  IconButton,  Typography} from '@mui/material';import { Close as CloseIcon } from '@mui/icons-material';const ConfirmDialog = ({ show, title, message, onCancel, onConfirm }) => {  if (!show) return null;  return (    <Dialog      open={show}      onClose={onCancel}      aria-labelledby="confirm-dialog-title"      aria-describedby="confirm-dialog-description"      PaperProps={{        elevation: 3,        sx: {          borderRadius: 2,          minWidth: 300,          maxWidth: 'calc(100% - 32px)'        }      }}    >      <DialogTitle id="confirm-dialog-title" sx={{ pr: 6 }}>        <Typography variant="h6" component="div">          {title}        </Typography>        <IconButton          aria-label="close"          onClick={onCancel}          sx={{            position: 'absolute',            right: 8,            top: 8,            color: (theme) => theme.palette.grey[500],          }}        >          <CloseIcon />        </IconButton>      </DialogTitle>      <DialogContent>        <DialogContentText id="confirm-dialog-description">          {message}        </DialogContentText>      </DialogContent>      <DialogActions sx={{ px: 3, pb: 3 }}>        <Button          onClick={onCancel}          variant="outlined"          color="primary"        >          Cancel        </Button>        <Button          onClick={onConfirm}          variant="contained"          color="primary"          autoFocus        >          Confirm        </Button>      </DialogActions>    </Dialog>  );};export default ConfirmDialog;

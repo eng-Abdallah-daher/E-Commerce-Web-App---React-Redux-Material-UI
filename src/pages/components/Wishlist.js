@@ -1,264 +1,1 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import {
-  Box,
-  Typography,
-  Button,
-  Divider,
-  IconButton,
-  Popover,
-  styled
-} from '@mui/material';
-import { Favorite as HeartIcon } from '@mui/icons-material';
-import WishlistItem from './WishlistItem';
-import ConfirmDialog from './ConfirmDialog';
-import {
-  openWishlist,
-  closeWishlist,
-  openConfirmDialog,
-  openClearAllConfirmDialog,
-  closeConfirmDialog,
-  refreshWishlist,
-  selectWishlistItems,
-  selectIsWishlistOpen,
-  selectConfirmDialogOpen,
-  selectIsClearAll,
-  selectItemToRemove
-} from '../../redux/slices/wishlistSlice';
-import { showOverlay, hideOverlay } from '../../redux/slices/uiSlice';
-import { removeFromWishlist, clearWishlist, falsing } from '../utils/WishlistFunctions';
-
-const WishlistPopover = styled(Popover)(({ theme }) => ({
-  '& .MuiPopover-paper': {
-    width: 350,
-    maxWidth: '90vw',
-    padding: theme.spacing(2),
-    borderRadius: theme.shape.borderRadius,
-    boxShadow: theme.shadows[4],
-    marginTop: theme.spacing(1),
-  },
-}));
-
-const WishlistArrow = styled('div')(({ theme }) => ({
-  position: 'absolute',
-  top: -10,
-  right: 14,
-  width: 0,
-  height: 0,
-  borderLeft: '10px solid transparent',
-  borderRight: '10px solid transparent',
-  borderBottom: `10px solid ${theme.palette.background.paper}`,
-}));
-
-const WishlistItemsWrapper = styled(Box)(({ theme }) => ({
-  height: 330,
-  overflowY: 'auto',
-  marginTop: theme.spacing(2),
-  marginBottom: theme.spacing(2),
-}));
-
-export const Wishlist = () => {
-  const dispatch = useDispatch();
-  const wishlistItems = useSelector(selectWishlistItems);
-  const isWishlistOpen = useSelector(selectIsWishlistOpen);
-  const confirmDialogOpen = useSelector(selectConfirmDialogOpen);
-  const isClearAll = useSelector(selectIsClearAll);
-  const itemToRemove = useSelector(selectItemToRemove);
-
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const closeTimeoutRef = React.useRef(null);
-
-  useEffect(() => {
-    if (isWishlistOpen) {
-      dispatch(refreshWishlist());
-      dispatch(showOverlay({
-        content: "",
-        position: 'top',
-        zIndex: 1100
-      }));
-      document.body.style.overflow = 'hidden';
-    } else {
-      dispatch(hideOverlay());
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-      dispatch(hideOverlay());
-    };
-  }, [isWishlistOpen, dispatch]);
-
-  const handleWishlistIconMouseEnter = (event) => {
-    setAnchorEl(event.currentTarget);
-    dispatch(openWishlist());
-  };
-
-  const handleWishlistPopoverMouseEnter = () => {
-
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
-    }
-  };
-
-  const handleWishlistIconMouseLeave = () => {
-
-    closeTimeoutRef.current = setTimeout(() => {
-      setAnchorEl(null);
-      dispatch(closeWishlist());
-    }, 100);
-  };
-
-  const handleWishlistIconClick = () => {
-    dispatch(showOverlay({
-      content: {
-        title: 'Your Wishlist',
-        body: (
-          <Box>
-            <Typography variant="body1">
-              You have {wishlistItems.length} items in your wishlist.
-            </Typography>
-            <Button
-              component={Link}
-              to="/wishlist"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ mt: 2 }}
-            >
-              Go to Wishlist
-            </Button>
-          </Box>
-        ),
-        linkTo: '/wishlist',
-        actionText: 'View Wishlist'
-      }
-    }));
-  };
-
-  const handleOpenConfirmDialog = (index) => {
-
-    dispatch(openConfirmDialog(index.index));
-  };
-
-  const handleOpenClearAllConfirmDialog = () => {
-    dispatch(openClearAllConfirmDialog());
-  };
-
-  const handleCloseConfirmDialog = () => {
-    dispatch(closeConfirmDialog());
-  };
-
-  const handleConfirmAction = () => {
-    console.log(itemToRemove)
-    if (isClearAll) {
-
-      clearWishlist();
-    } else if (itemToRemove !== null) {
-      falsing();
-
-      removeFromWishlist(itemToRemove);
-    }
-    dispatch(refreshWishlist());
-    dispatch(closeConfirmDialog());
-  };
-
-  return (
-    <>
-      <IconButton
-        color="inherit"
-        aria-label="wishlist"
-        onMouseEnter={handleWishlistIconMouseEnter}
-        onClick={handleWishlistIconClick}
-      >
-        <HeartIcon />
-      </IconButton>
-
-      <WishlistPopover
-        open={isWishlistOpen}
-        anchorEl={anchorEl}
-        onClose={() => dispatch(closeWishlist())}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-        disableRestoreFocus
-        onMouseLeave={handleWishlistIconMouseLeave}
-        slotProps={{
-          paper: {
-            onMouseLeave: handleWishlistIconMouseLeave,
-            onMouseEnter: handleWishlistPopoverMouseEnter
-          }
-        }}
-      >
-        <WishlistArrow />
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">YOUR WISHLIST ({wishlistItems.length})</Typography>
-          <Button
-            component={Link}
-            to="/wishlist"
-            color="primary"
-            onClick={() => dispatch(closeWishlist())}
-          >
-            VIEW WISHLIST
-          </Button>
-        </Box>
-
-        <Divider sx={{ my: 1 }} />
-
-        <WishlistItemsWrapper>
-          {wishlistItems.length > 0 ? (
-            wishlistItems.map((item, index) => (
-              <WishlistItem
-                key={index}
-                item={item}
-                openConfirmDialog={handleOpenConfirmDialog}
-              />
-            ))
-          ) : (
-            <Typography variant="body1" sx={{ textAlign: 'center', py: 2 }}>
-              No items in wishlist
-            </Typography>
-          )}
-        </WishlistItemsWrapper>
-
-        <Divider sx={{ my: 1 }} />
-
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={handleOpenClearAllConfirmDialog}
-          >
-            Clear Wishlist
-          </Button>
-          <Button
-            variant="outlined"
-            color="primary"
-            fullWidth
-            onClick={() => dispatch(closeWishlist())}
-          >
-            Close
-          </Button>
-        </Box>
-      </WishlistPopover>
-
-      <ConfirmDialog
-        show={confirmDialogOpen}
-        title={isClearAll ? "Clear Wishlist?" : "Remove Item?"}
-        message={isClearAll
-          ? "Are you sure you want to clear all items from your wishlist?"
-          : "Are you sure you want to remove this product from the wishlist?"}
-        onCancel={handleCloseConfirmDialog}
-        onConfirm={handleConfirmAction}
-      />
-    </>
-  );
-};
-
-export default Wishlist;
+import React, { useEffect } from 'react';import { useDispatch, useSelector } from 'react-redux';import { Link } from 'react-router-dom';import {  Box,  Typography,  Button,  Divider,  IconButton,  Popover,  styled} from '@mui/material';import { Favorite as HeartIcon } from '@mui/icons-material';import WishlistItem from './WishlistItem';import ConfirmDialog from './ConfirmDialog';import {  openWishlist,  closeWishlist,  openConfirmDialog,  openClearAllConfirmDialog,  closeConfirmDialog,  refreshWishlist,  selectWishlistItems,  selectIsWishlistOpen,  selectConfirmDialogOpen,  selectIsClearAll,  selectItemToRemove} from '../../redux/slices/wishlistSlice';import { showOverlay, hideOverlay } from '../../redux/slices/uiSlice';import { removeFromWishlist, clearWishlist, falsing } from '../utils/WishlistFunctions';const WishlistPopover = styled(Popover)(({ theme }) => ({  '& .MuiPopover-paper': {    width: 350,    maxWidth: '90vw',    padding: theme.spacing(2),    borderRadius: theme.shape.borderRadius,    boxShadow: theme.shadows[4],    marginTop: theme.spacing(1),  },}));const WishlistArrow = styled('div')(({ theme }) => ({  position: 'absolute',  top: -10,  right: 14,  width: 0,  height: 0,  borderLeft: '10px solid transparent',  borderRight: '10px solid transparent',  borderBottom: `10px solid ${theme.palette.background.paper}`,}));const WishlistItemsWrapper = styled(Box)(({ theme }) => ({  height: 330,  overflowY: 'auto',  marginTop: theme.spacing(2),  marginBottom: theme.spacing(2),}));export const Wishlist = () => {  const dispatch = useDispatch();  const wishlistItems = useSelector(selectWishlistItems);  const isWishlistOpen = useSelector(selectIsWishlistOpen);  const confirmDialogOpen = useSelector(selectConfirmDialogOpen);  const isClearAll = useSelector(selectIsClearAll);  const itemToRemove = useSelector(selectItemToRemove);  const [anchorEl, setAnchorEl] = React.useState(null);  const closeTimeoutRef = React.useRef(null);  useEffect(() => {    if (isWishlistOpen) {      dispatch(refreshWishlist());      dispatch(showOverlay({        content: "",        position: 'top',        zIndex: 1100      }));      document.body.style.overflow = 'hidden';    } else {      dispatch(hideOverlay());      document.body.style.overflow = '';    }    return () => {      document.body.style.overflow = '';      dispatch(hideOverlay());    };  }, [isWishlistOpen, dispatch]);  const handleWishlistIconMouseEnter = (event) => {    setAnchorEl(event.currentTarget);    dispatch(openWishlist());  };  const handleWishlistPopoverMouseEnter = () => {    if (closeTimeoutRef.current) {      clearTimeout(closeTimeoutRef.current);      closeTimeoutRef.current = null;    }  };  const handleWishlistIconMouseLeave = () => {    closeTimeoutRef.current = setTimeout(() => {      setAnchorEl(null);      dispatch(closeWishlist());    }, 100);  };  const handleOpenConfirmDialog = (index) => {    dispatch(openConfirmDialog(index.index));  };  const handleOpenClearAllConfirmDialog = () => {    dispatch(openClearAllConfirmDialog());  };  const handleCloseConfirmDialog = () => {    dispatch(closeConfirmDialog());  };  const handleConfirmAction = () => {    console.log(itemToRemove)    if (isClearAll) {      clearWishlist();    } else if (itemToRemove !== null) {      falsing();      removeFromWishlist(itemToRemove);    }    dispatch(refreshWishlist());    dispatch(closeConfirmDialog());  };  return (    <>      <IconButton        color="inherit"         aria-label="wishlist"        onMouseEnter={handleWishlistIconMouseEnter}        onClick={handleWishlistIconMouseEnter}      >        <HeartIcon />      </IconButton>      <WishlistPopover        open={isWishlistOpen}        anchorEl={anchorEl}        onClose={() => dispatch(closeWishlist())}        anchorOrigin={{          vertical: 'bottom',          horizontal: 'right',        }}        transformOrigin={{          vertical: 'top',          horizontal: 'right',        }}        disableRestoreFocus        onMouseLeave={handleWishlistIconMouseLeave}        slotProps={{          paper: {            onMouseLeave: handleWishlistIconMouseLeave,            onMouseEnter: handleWishlistPopoverMouseEnter          }        }}      >        <WishlistArrow />        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}          tabindex="0">          <Typography variant="h6">YOUR WISHLIST ({wishlistItems.length})</Typography>          <Button            component={Link}            to="/wishlist"            color="primary"            onClick={() => dispatch(closeWishlist())}          >            VIEW WISHLIST          </Button>        </Box>        <Divider sx={{ my: 1 }} />        <WishlistItemsWrapper>          {wishlistItems.length > 0 ? (            wishlistItems.map((item, index) => (              <WishlistItem                key={index}                item={item}                openConfirmDialog={handleOpenConfirmDialog}              />            ))          ) : (            <Typography variant="body1" sx={{ textAlign: 'center', py: 2 }}>              No items in wishlist            </Typography>          )}        </WishlistItemsWrapper>        <Divider sx={{ my: 1 }} />        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>          <Button            variant="contained"            color="primary"            fullWidth            onClick={handleOpenClearAllConfirmDialog}          >            Clear Wishlist          </Button>          <Button            variant="outlined"            color="primary"            fullWidth            onClick={() => dispatch(closeWishlist())}          >            Close          </Button>        </Box>      </WishlistPopover>      <ConfirmDialog        show={confirmDialogOpen}        title={isClearAll ? "Clear Wishlist?" : "Remove Item?"}        message={isClearAll          ? "Are you sure you want to clear all items from your wishlist?"          : "Are you sure you want to remove this product from the wishlist?"}        onCancel={handleCloseConfirmDialog}        onConfirm={handleConfirmAction}      />    </>  );};export default Wishlist;

@@ -4,7 +4,6 @@ import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { hideOverlay } from '../../redux/slices/uiSlice';
 import OverlayModal from './OverlayModal';
-
 const OverlayContainer = styled(Box)(({ theme }) => ({
   position: 'fixed',
   top: 0,
@@ -26,15 +25,12 @@ const OverlayContainer = styled(Box)(({ theme }) => ({
     visibility: 'visible',
   },
 }));
-
 const PageOverlay = () => {
   const dispatch = useDispatch();
   const { isVisible, content, position, zIndex, top } = useSelector(state => state.ui.overlay);
-
   const handleOverlayClick = () => {
     dispatch(hideOverlay());
   };
-
   const getPositionStyles = () => {
   if(top){
     return {top: top}
@@ -52,7 +48,6 @@ const PageOverlay = () => {
         return { justifyContent: 'center', alignItems: 'center' };
     }
   };
-
   return (
     <OverlayContainer
       className={isVisible ? 'visible' : ''}
@@ -74,5 +69,4 @@ const PageOverlay = () => {
     </OverlayContainer>
   );
 };
-
 export default PageOverlay;

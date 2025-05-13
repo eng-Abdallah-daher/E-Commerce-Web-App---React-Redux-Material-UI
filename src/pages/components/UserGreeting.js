@@ -12,13 +12,11 @@ import {
 } from '@mui/material';
 import { Person as PersonIcon } from '@mui/icons-material';
 import { selectCurrentUser } from '../../redux/slices/userSlice';
-
 function UserGreeting() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const currentUser = useSelector(selectCurrentUser);
   const userName = currentUser?.name || '';
-  
   if (!userName || userName.length === 0) {
     return (
       <Tooltip title="Login">
@@ -34,7 +32,6 @@ function UserGreeting() {
       </Tooltip>
     );
   }
-  
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       {isMobile ? (
@@ -106,5 +103,4 @@ function UserGreeting() {
     </Box>
   );
 }
-
 export default UserGreeting;

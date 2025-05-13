@@ -20,7 +20,6 @@ import {
 } from '@mui/material';
 import { KeyboardArrowDown as ArrowIcon } from '@mui/icons-material';
 import { showOverlay, hideOverlay } from '../../redux/slices/uiSlice';
-
 const NavContainer = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   color: theme.palette.primary.contrastText,
@@ -32,7 +31,6 @@ const NavContainer = styled(Box)(({ theme }) => ({
     display: 'none'
   }
 }));
-
 const NavLink = styled(Button)(({ theme }) => ({
   color: theme.palette.primary.contrastText,
   padding: theme.spacing(1, 2),
@@ -42,7 +40,6 @@ const NavLink = styled(Button)(({ theme }) => ({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
   }
 }));
-
 const DropdownPaper = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   boxShadow: theme.shadows[4],
@@ -53,7 +50,6 @@ const DropdownPaper = styled(Paper)(({ theme }) => ({
   zIndex: 1300,
   overflowX: 'hidden'
 }));
-
 const DropdownOverlay = styled(Box)(() => ({
   position: 'fixed',
   top: 0,
@@ -67,16 +63,13 @@ const DropdownOverlay = styled(Box)(() => ({
     display: 'block'
   }
 }));
-
 export default function NavbarLinks() {
   const dispatch = useDispatch();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-
   const [activeDropdown, setActiveDropdown] = useState(null);
   const productsRef = useRef(null);
   const categoriesRef = useRef(null);
-
   useEffect(() => {
     if (activeDropdown) {
       document.body.style.overflow = 'hidden';
@@ -90,30 +83,24 @@ export default function NavbarLinks() {
       document.body.style.overflow = '';
       dispatch(hideOverlay());
     }
-
     return () => {
       document.body.style.overflow = '';
       dispatch(hideOverlay());
     };
   }, [activeDropdown, dispatch]);
-
   const handleMenuClick = (type) => {
     setActiveDropdown(prev => prev === type ? null : type);
   };
-
   const handleClose = () => {
     setActiveDropdown(null);
   };
-
   if (isMobile) return null;
-
   return (
     <NavContainer>
       <DropdownOverlay
         className={activeDropdown ? 'active' : ''}
         onClick={handleClose}
       />
-
       <Container maxWidth="xl">
         <Stack
           direction="row"
@@ -124,7 +111,6 @@ export default function NavbarLinks() {
           <NavLink component={Link} to="/">
             Home
           </NavLink>
-
           <Box ref={productsRef}>
             <NavLink
               aria-label="Products"
@@ -142,7 +128,6 @@ export default function NavbarLinks() {
             >
               Products
             </NavLink>
-
             <Popper
               open={activeDropdown === 'products'}
               anchorEl={productsRef.current}
@@ -215,19 +200,15 @@ export default function NavbarLinks() {
               )}
             </Popper>
           </Box>
-
           <NavLink component={Link} to="/goods">
             Goods
           </NavLink>
-
           <NavLink component={Link} to="/about">
             About
           </NavLink>
-
           <NavLink component={Link} to="/contact">
             Contact
           </NavLink>
-
           <Box ref={categoriesRef}>
             <NavLink
               aria-label="Categories"
@@ -245,7 +226,6 @@ export default function NavbarLinks() {
             >
               Categories
             </NavLink>
-
             <Popper
               open={activeDropdown === 'categories'}
               anchorEl={categoriesRef.current}

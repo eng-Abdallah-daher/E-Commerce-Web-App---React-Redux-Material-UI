@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-
 const initialState = {
   overlay: {
     isVisible: false,
@@ -17,7 +16,6 @@ const initialState = {
     currentSection: 'menu'
   }
 };
-
 export const uiSlice = createSlice({
   name: 'ui',
   initialState,
@@ -56,7 +54,6 @@ export const uiSlice = createSlice({
     }
   },
 });
-
 export const {
   showOverlay,
   hideOverlay,
@@ -67,5 +64,4 @@ export const {
   toggleMobileMenu,
   setMobileMenuSection
 } = uiSlice.actions;
-
 export default uiSlice.reducer;

@@ -1,30 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { setCookie, getCookie, deleteCookie } from '../../pages/utils/Functions';
-
-const getUserFromCookies = () => {
-  const name = getCookie('userName');
-  const email = getCookie('email');
-  const userimage = getCookie('userimage');
-  const address = getCookie('address');
-
-  if (name && email) {
-    return {
-      name,
-      email,
-      userimage: userimage || '',
-      address: address || '',
-    };
-  }
-  return null;
-};
-
 const initialState = {
-  currentUser: getUserFromCookies(),
-  isAuthenticated: !!getUserFromCookies(),
+  currentUser: null,
+  isAuthenticated: false,
   loading: false,
   error: null,
 };
-
 export const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -45,11 +25,6 @@ export const userSlice = createSlice({
       state.currentUser = null;
       state.isAuthenticated = false;
       state.error = null;
-      
-      deleteCookie('userName');
-      deleteCookie('email');
-      deleteCookie('userimage');
-      deleteCookie('address');
     },
     setUser: (state, action) => {
       state.currentUser = action.payload;
@@ -58,30 +33,22 @@ export const userSlice = createSlice({
     },
     updateUserProfile: (state, action) => {
       state.currentUser = { ...state.currentUser, ...action.payload };
-
-      if (action.payload.name) setCookie('userName', action.payload.name, 7);
-      if (action.payload.email) setCookie('email', action.payload.email, 7);
-      if (action.payload.userimage) setCookie('userimage', action.payload.userimage, 7);
-      if (action.payload.address) setCookie('address', action.payload.address, 7);
     },
     clearError: (state) => {
       state.error = null;
     }
   },
 });
-
-export const { 
-  loginSuccess, 
-  loginFailure, 
-  logout, 
+export const {
+  loginSuccess,
+  loginFailure,
+  logout,
   setUser,
-  updateUserProfile, 
-  clearError 
+  updateUserProfile,
+  clearError
 } = userSlice.actions;
-
 export const selectCurrentUser = (state) => state.user.currentUser;
 export const selectIsAuthenticated = (state) => state.user.isAuthenticated;
 export const selectUserError = (state) => state.user.error;
 export const selectUserLoading = (state) => state.user.loading;
-
 export default userSlice.reducer;

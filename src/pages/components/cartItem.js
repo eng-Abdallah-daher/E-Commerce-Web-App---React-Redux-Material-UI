@@ -9,7 +9,6 @@ import {
   styled
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
-import { updateQuantity } from '../../redux/slices/cartSlice';
 
 const CartItemContainer = styled(Paper)(({ theme }) => ({
   display: 'flex',
@@ -21,20 +20,17 @@ const CartItemContainer = styled(Paper)(({ theme }) => ({
     boxShadow: theme.shadows[2]
   }
 }));
-
 const CartItemImage = styled('img')(({ theme }) => ({
   width: 70,
   height: 70,
   objectFit: 'cover',
   borderRadius: theme.shape.borderRadius
 }));
-
 const CartItemDetails = styled(Box)(({ theme }) => ({
   flex: 1,
   marginLeft: theme.spacing(2),
   overflow: 'hidden'
 }));
-
 const CartItemName = styled(Typography)(({ theme }) => ({
   fontWeight: 'bold',
   marginBottom: theme.spacing(0.5),
@@ -42,24 +38,18 @@ const CartItemName = styled(Typography)(({ theme }) => ({
   overflow: 'hidden',
   textOverflow: 'ellipsis'
 }));
-
 export default function CartItem({ index, item, openConfirmDialog }) {
   const dispatch = useDispatch();
-
-
-
   return (
     <CartItemContainer elevation={0}>
       <CartItemImage
         src={item.image || item.img}
         alt={item.name}
       />
-
       <CartItemDetails>
         <CartItemName variant="subtitle2">
           {item.name}
         </CartItemName>
-
         <Grid container spacing={1}>
           {item.variant && (
             <Grid item xs={12}>
@@ -68,13 +58,11 @@ export default function CartItem({ index, item, openConfirmDialog }) {
               </Typography>
             </Grid>
           )}
-
           <Grid item xs={6}>
             <Typography variant="caption" color="text.secondary">
               Qty: {item.quantity}
             </Typography>
           </Grid>
-
           <Grid item xs={6}>
             <Typography variant="caption" color="text.secondary">
               ${(item.price * item.quantity).toFixed(2)}
@@ -82,7 +70,6 @@ export default function CartItem({ index, item, openConfirmDialog }) {
           </Grid>
         </Grid>
       </CartItemDetails>
-
       <IconButton
         size="small"
         edge="end"
